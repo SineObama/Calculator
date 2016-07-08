@@ -10,93 +10,82 @@
 namespace Sine {
 
     template<class T>
-    class Calculator : public CalculateStack<T> {
+    class Calculator {
 
     public:
 
-        Calculator();
+        Calculator(const CalculationSetting<T> &);
         ~Calculator();
 
-        void Insert(const T &);
-        void Insert(char);
+        void insert(const T &);
+        void insert(char);
 
-        T Calculate();
-        T Result();
+        T calculate();
 
-        void Clear();
+        void clear();
 
     private:
 
-        std::stack<CalculateStack<T>*> Stack;
-        T result;
+        std::stack<CalculateStack<T>*> stack;
+
+        CalculationSetting<T> set;
 
     };
 
     template<class T>
-    Calculator<T>::Calculator() {
-        Stack.push(new CalculateStack<T>);  // keep the size >= 1
+    Calculator<T>::Calculator(const CalculationSetting<T> &setting)
+        : set(setting) {
+        stack.push(new CalculateStack<T>(set));  // keep the size >= 1
     }
 
     template<class T>
     Calculator<T>::~Calculator() {
-        while (!Stack.empty()) {
-            delete Stack.top();
-            Stack.pop();
-        }
+        clear();
     }
 
     template<class T>
-    void Calculator<T>::Insert(const T &x) {
-        Stack.top()->Insert(x);
+    void Calculator<T>::insert(const T &x) {
+        stack.top()->insertValue(x);
         return;
     }
 
     template<class T>
-    void Calculator<T>::Insert(char x) {
-        CalculateStack<T> *tem;
+    void Calculator<T>::insert(char x) {
+        CalculateStack<T> *tem = stack.top();
         switch (x) {
         case '(':
-            if (Stack.top()->NextInsertType() == CalculateStack<T>::Operator)
-                throw SyntaxError("miss operator before '('.", "Calculator::Insert(char)");
-            Stack.push(new CalculateStack<T>);
+            if (tem->nextInsertType() == CalculateStack<T>::BinaryOperator)
+                throw SyntaxError("miss operator before '('.");
+            stack.push(new CalculateStack<T>(set));
             break;
         case ')':
-            if (Stack.top()->StackValue.empty())
-                throw SyntaxError("nothing to be calculated between ( ).", "Calculator::Insert()");
-            if (Stack.size() <= 1)
-                throw SyntaxError("more ')' than '('.", "Calculator::Insert(char)");
-            tem = Stack.top();
-            Stack.pop();
-            Stack.top()->Insert(tem->Calculate());
+            if (stack.size() <= 1)
+                throw SyntaxError("more ')' than '('.");
+            stack.pop();
+            stack.top()->insertValue(tem->calculate());
             delete tem;
             break;
         default:
-            Stack.top()->Insert(x);
+            tem->insertOp(x);
         }
     }
 
     template<class T>
-    T Calculator<T>::Calculate() {
-        if (Stack.size() != 1)
-            throw SyntaxError("miss ')'.", "Calculator::Calculate()");
-        Stack.top()->Calculate();
-        result = Stack.top()->Calculate();
-        Stack.top()->Clear();
+    T Calculator<T>::calculate() {
+        if (stack.size() != 1)
+            throw SyntaxError("miss ')'.");
+        T result = stack.top()->calculate();
+        stack.top()->clear();
         return result;
     }
 
     template<class T>
-    T Calculator<T>::Result() {
-        return result;
-    }
-
-    template<class T>
-    void Calculator<T>::Clear() {
-        while (Stack.size() != 1) {
-            delete Stack.top();
-            Stack.pop();
+    void Calculator<T>::clear() {
+        while (stack.size() != 1) {
+            delete stack.top();
+            stack.pop();
         }
-        Stack.top()->Clear();
+        stack.top()->clear();
     }
 
 }

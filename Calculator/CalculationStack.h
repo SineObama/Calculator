@@ -8,6 +8,7 @@
 #include <iostream>
 #include "Calculator.h"
 #include "CalculationException.h"
+#include "CalculationSetting.h"
 
 namespace Sine {
 
@@ -21,151 +22,113 @@ namespace Sine {
 
     public:
 
-        typedef Value(*Fptr)(const Value &, const Value &);
+        typedef Value(*temt)(const Value &, const Value &);
 
-        CalculateStack();
+        enum InsertType {
+            BinaryOperator,
+            ValueOrUnaryOperator
+        };
+
+        CalculateStack(const CalculationSetting<Value> &);
         ~CalculateStack();
 
-        static void AddFunction(int hash, Fptr, int prior);
-        static void ClearFunction();
+        InsertType nextInsertType();
+        void insertOp(int hash);
+        void insertValue(const Value &);
 
-        void Insert(char);
-        void Insert(const Value &);
-
-        Value Calculate();
-        Value GetLastResult();
-
-        void Clear();
+        Value calculate();
+        void clear();
 
     private:
 
-        struct OpDetail {
-            int hash, prior;
-            bool binary;
-            Fptr func;
-        };
+        void calculateOne();
 
-        void CalculateOnce();
+        InsertType nextType;
 
-        std::stack<Value *> StackValue;
-        std::stack<char> StackChar;
+        std::stack<Value *> ValueStack;
+        std::stack<int> OpStack;
 
-        Value *LastResult;
-
-        static std::map<int, OpDetail> op;
+        CalculationSetting<Value> set;
 
     };
 
     template<class Value>
-    std::map<int, CalculateStack<Value>::OpDetail> CalculateStack<Value>::op;
-
-    template<class Value>
-    CalculateStack<Value>::CalculateStack() {
-        LastResult = NULL;
+    CalculateStack<Value>::CalculateStack(const CalculationSetting<Value> &setting)
+        : set(setting) {
+        nextType = ValueOrUnaryOperator;
     }
 
     template<class Value>
     CalculateStack<Value>::~CalculateStack() {
-        while (!StackValue.empty()) {
-            delete StackValue.top();
-            StackValue.pop();
+        clear();
+    }
+
+    template<class Value>
+    typename CalculateStack<Value>::InsertType CalculateStack<Value>::nextInsertType() {
+        return nextType;
+    }
+
+    template<class Value>
+    void CalculateStack<Value>::insertOp(int hash) {
+        CalculationSetting<Value>::OpDetail detail = set.get(hash);
+        if (detail.binary) {
+            if (nextType == ValueOrUnaryOperator)
+                throw SyntaxError("continual binary operators");
         }
-        delete LastResult;
-    }
-
-    template<class Value>
-    void CalculateStack<Value>::AddFunction(char x, Fptr p, int n) {
-        if (Prior.find(x) != Prior.end())
-            throw CalculatorError("operator exists.",
-                "CalculateStack::AddFunction()");
-        if (x == '(' || x == ')')
-            throw CalculatorError("parentheses added.",
-                "CalculateStack::AddFunction()");
-        Func.insert(std::make_pair(x, p));
-        Prior.insert(std::make_pair(x, n));
-        return;
-    }
-
-    template<class Value>
-    void CalculateStack<Value>::ClearFunction() {
-        Func.clear();
-        Prior.clear();
-    }
-
-    template<class Value>
-    void CalculateStack<Value>::Insert(char x) {
-        if (Prior.find(x) == Prior.end())
-            throw SyntaxError(std::string("operator ") + x + " not found.",
-                "CalculateStack::Insert(char)");
-        if (NextInsertType() == Number)
-            throw SyntaxError(std::string("extra operator ") + x + ".",
-                "CalculateStack::Insert(char)");
-        if (StackChar.empty()) {
-            StackChar.push(x);
-            return;
+        else {
+            if (nextType == BinaryOperator)
+                throw SyntaxError("continual values(or unary operators");
         }
-        while (Prior.find(StackChar.top())->second >= Prior.find(x)->second) {
-            CalculateOnce();
-            if (StackChar.empty())
-                break;
+        while (!OpStack.empty() && set.get(OpStack.top()).prior >= set.get(hash).prior)
+            calculateOne();
+        OpStack.push(hash);
+    }
+
+    template<class Value>
+    void CalculateStack<Value>::insertValue(const Value &x) {
+        if (nextType == BinaryOperator)
+            throw SyntaxError("continual values(or unary operators");
+        ValueStack.push(new Value(x));
+    }
+
+    template<class Value>
+    Value CalculateStack<Value>::calculate() {
+        if (ValueStack.empty())
+            throw CalculatorError("nothing to be calculated.");
+        while (ValueStack.size() > 1)
+            calculateOne();
+        return Value(*ValueStack.top());
+    }
+
+    template<class Value>
+    void CalculateStack<Value>::clear() {
+        while (!ValueStack.empty()) {
+            delete ValueStack.top();
+            ValueStack.pop();
         }
-        StackChar.push(x);
+        while (!OpStack.empty())
+            OpStack.pop();
     }
 
     template<class Value>
-    void CalculateStack<Value>::Insert(const Value &x) {
-        if (NextInsertType() == Operator)
-            throw SyntaxError("continual number.", "CalculateStack::Insert(value)");
-        StackValue.push(new Value(x));
-    }
-
-    template<class Value>
-    typename CalculateStack<Value>::InsertType CalculateStack<Value>::NextInsertType() {
-        if (StackValue.size() == StackChar.size())
-            return Number;
-        else
-            return Operator;
-    }
-
-    template<class Value>
-    Value CalculateStack<Value>::Calculate() {
-        if (StackValue.empty())
-            throw CalculatorError("nothing to be calculated.",
-                "CalculateStack::Calculate()");
-        while (StackValue.size() > 1)
-            CalculateOnce();
-        return *(LastResult = new Value(*StackValue.top()));
-    }
-
-    template<class Value>
-    Value CalculateStack<Value>::GetLastResult() {
-        if (LastResult == NULL)
-            throw CalculatorError("no result before.",
-                "CalculateStack::GetLastResult()");
-        return *LastResult;
-    }
-
-    template<class Value>
-    void CalculateStack<Value>::Clear() {
-        while (!StackValue.empty()) {
-            delete StackValue.top();
-            StackValue.pop();
+    void CalculateStack<Value>::calculateOne() {
+        Value *a = ValueStack.top();
+        ValueStack.pop();
+        int hash = OpStack.top();
+        OpStack.pop();
+        CalculationSetting<Value>::OpDetail detail = set.get(hash);
+        if (detail.binary) {
+            Value *b = ValueStack.top();
+            ValueStack.pop();
+            //CalculationSetting<Value>::OpPtr2 f = (CalculationSetting<Value>::OpPtr2)detail.func;
+            temt f = (temt)detail.func;
+            ValueStack.push(new Value((*f)(1, 2)));
+            delete b;
         }
-        while (!StackChar.empty())
-            StackChar.pop();
-    }
-
-    template<class Value>
-    void CalculateStack<Value>::CalculateOnce() {
-        Value *a, *b;
-        a = StackValue.top();
-        StackValue.pop();
-        b = StackValue.top();
-        StackValue.pop();
-        StackValue.push(new Value((*Func.find(StackChar.top())->second)(*b, *a)));
-        StackChar.pop();
+        else {
+            ValueStack.push(new Value((*(CalculationSetting<Value>::OpPtr1)detail.func)(*a)));
+        }
         delete a;
-        delete b;
     }
 
 }

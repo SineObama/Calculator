@@ -146,6 +146,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CalculationException.h" />
+    <ClInclude Include="CalculationSetting.h" />
     <ClInclude Include="CalculationStack.h" />
     <ClInclude Include="Calculator.h" />
     <ClInclude Include="Functions.h" />

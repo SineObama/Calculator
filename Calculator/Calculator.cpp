@@ -30,30 +30,31 @@ using namespace Sine;
 
 int main() {
     //cout << Sqrt1(1000000000000000000.0, 3, 1000000000000.0);
-    Calculator<int> t;
-    Calculator<int>::AddFunction('+', &jia, 1);
-    Calculator<int>::AddFunction('-', &jian, 1);
-    Calculator<int>::AddFunction('*', &cheng, 2);
-    Calculator<int>::AddFunction('/', &chu, 2);
+    CalculationSetting<int> setting;
+    setting.setFunction('+', &jia, 1);
+    setting.setFunction('-', &jian, 1);
+    setting.setFunction('*', &cheng, 2);
+    setting.setFunction('/', &chu, 2);
+    Calculator<int> t(setting);
     while (1) {
         char c = cin.peek();
         if (c >= '0' && c <= '9') {
             int i;
             cin >> i;
             //            cerr << i << " i\n";
-            t.Insert(i);
+            t.insert(i);
         }
         else {
             cin >> c;
             if (c == '=')
                 break;
             //            cerr << c << " c\n";
-            t.Insert(c);
+            t.insert(c);
         }
         while (cin.peek() == ' ')
             cin.ignore();
     }
-    cout << t.Calculate();
+    cout << t.calculate();
     getchar();
     getchar();
     return 0;
