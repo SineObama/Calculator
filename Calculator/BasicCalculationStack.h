@@ -9,8 +9,8 @@
 #include "CalculationException.h"
 #include "CalculationSetting.h"
 
-namespace Sine {
-namespace Calculator {
+namespace sine {
+namespace calculator {
 
 /**
  * 用栈实现的计算。在插入时可能执行一定的计算。

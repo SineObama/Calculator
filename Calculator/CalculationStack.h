@@ -5,8 +5,8 @@
 #include "BasicCalculationStack.h"
 #include "CalculationException.h"
 
-namespace Sine {
-namespace Calculator {
+namespace sine {
+namespace calculator {
 
 /**
  * 接受带括号([{的运算。

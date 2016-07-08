@@ -3,8 +3,8 @@
 #include <stdexcept>
 #include <string>
 
-namespace Sine {
-namespace Calculator {
+namespace sine {
+namespace calculator {
 
 class CalculationError : public std::runtime_error {
 public:

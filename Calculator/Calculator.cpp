@@ -10,16 +10,16 @@
 #include "Functions.h"
 
 using namespace std;
-using namespace Sine::Calculator;
+using namespace sine::calculator;
 
 typedef double Type;
 
 int main() {
-    cout << Sqrt1(1000000000000000000.0, 3, 1000000000000.0);
-    getchar();
-    getchar();
-    return 0;
-    CalculationStack<Type> t(CalculationSetting<Type>::default());
+//     cout << Sqrt1(100000000000000000.0, 5, 10.0);
+//     getchar();
+//     getchar();
+//     return 0;
+    CalculationStack<Type> t(CalculationSetting<Type>::getDefault());
 
     while (1) {
         while (1) {

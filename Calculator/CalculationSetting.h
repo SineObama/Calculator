@@ -1,9 +1,10 @@
 #pragma once
 
 #include "CalculationException.h"
+#include "Functions.h"
 
-namespace Sine {
-namespace Calculator {
+namespace sine {
+namespace calculator {
 
 struct Operator {
     Operator(int hash, int p, void *f, bool b) {
@@ -23,7 +24,7 @@ class CalculationSetting {
 
 public:
 
-    static CalculationSetting default();
+    static CalculationSetting getDefault();
 
     typedef Value(*OpPtr1)(const Value &);
     typedef Value(*OpPtr2)(const Value &, const Value &);
@@ -40,7 +41,7 @@ private:
 };
 
 template<class Value>
-CalculationSetting<Value> CalculationSetting<Value>::default() {
+CalculationSetting<Value> CalculationSetting<Value>::getDefault() {
     static CalculationSetting<Value> def;
     static bool init = false;
     if (!init) {
@@ -51,26 +52,6 @@ CalculationSetting<Value> CalculationSetting<Value>::default() {
         def.set('/', divide<Value>, 2);
     }
     return def;
-}
-
-template<class Value>
-Value plus(const Value &a, const Value &b) {
-    return a + b;
-}
-
-template<class Value>
-Value subtract(const Value &a, const Value &b) {
-    return a - b;
-}
-
-template<class Value>
-Value multiply(const Value &a, const Value &b) {
-    return a * b;
-}
-
-template<class Value>
-Value divide(const Value &a, const Value &b) {
-    return a / b;
 }
 
 template<class Value>
