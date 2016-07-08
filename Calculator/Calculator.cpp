@@ -6,7 +6,7 @@
 #include <iostream>
 #include <cstdio>
 #include <sstream>
-#include "Calculator.h"
+#include "CalculationStack.h"
 #include "Functions.h"
 
 using namespace std;
@@ -14,39 +14,12 @@ using namespace Sine::Calculator;
 
 typedef double Type;
 
-Type jia(const Type & a, const Type & b) {
-    return a + b;
-}
-
-Type jian(const Type & a, const Type & b) {
-    return a - b;
-}
-
-Type cheng(const Type & a, const Type & b) {
-    return a * b;
-}
-
-Type chu(const Type & a, const Type & b) {
-    return a / b;
-}
-
-Type mo(const Type & a, const Type & b) {
-    return a;
-}
-
 int main() {
-    //cout << Sqrt1(1000000000000000000.0, 3, 1000000000000.0);
-    cout << (-5 % -3);
+    cout << Sqrt1(1000000000000000000.0, 3, 1000000000000.0);
     getchar();
     getchar();
     return 0;
-    CalculationSetting<Type> setting;
-    setting.setFunction('+', &jia, 1);
-    setting.setFunction('-', &jian, 1);
-    setting.setFunction('*', &cheng, 2);
-    setting.setFunction('/', &chu, 2);
-    setting.setFunction('%', &mo, 2);
-    Calculator<Type> t(setting);
+    CalculationStack<Type> t(CalculationSetting<Type>::default());
 
     while (1) {
         while (1) {
