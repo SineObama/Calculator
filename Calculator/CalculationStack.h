@@ -23,20 +23,14 @@ namespace Sine {
 
         typedef Value(*Fptr)(const Value &, const Value &);
 
-        enum InsertType {
-            Number,
-            Operator
-        };
-
         CalculateStack();
         ~CalculateStack();
 
-        static void AddFunction(char, Fptr, int);
+        static void AddFunction(int hash, Fptr, int prior);
         static void ClearFunction();
 
         void Insert(char);
         void Insert(const Value &);
-        InsertType NextInsertType();
 
         Value Calculate();
         Value GetLastResult();
@@ -45,21 +39,25 @@ namespace Sine {
 
     private:
 
+        struct OpDetail {
+            int hash, prior;
+            bool binary;
+            Fptr func;
+        };
+
         void CalculateOnce();
 
         std::stack<Value *> StackValue;
         std::stack<char> StackChar;
+
         Value *LastResult;
 
-        static std::map<char, Fptr> Func;
-        static std::map<char, int> Prior;
+        static std::map<int, OpDetail> op;
 
     };
 
     template<class Value>
-    std::map<char, Value(*)(const Value &, const Value &)> CalculateStack<Value>::Func;
-    template<class Value>
-    std::map<char, int> CalculateStack<Value>::Prior;
+    std::map<int, CalculateStack<Value>::OpDetail> CalculateStack<Value>::op;
 
     template<class Value>
     CalculateStack<Value>::CalculateStack() {
