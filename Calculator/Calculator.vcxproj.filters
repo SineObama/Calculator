@@ -39,7 +39,10 @@
     <ClInclude Include="CalculationStack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CalculationTree.h">
+    <ClInclude Include="BasicCalculationTree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BasicCalculation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

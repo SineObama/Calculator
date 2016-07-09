@@ -7,21 +7,27 @@ namespace sine {
 namespace calculator {
 
 /**
+ * 表示希望的插入数据类型，操作数（数值）或操作符（单双目）
  * state transition:
  * BinaryOperator:
- *	                    * value->throw;
+ *	                    * value->throw MissingOperator();
  *	                    * unary->ValueOrUnaryOperator;
  *	                    * binary->ValueOrUnaryOperator;
  * ValueOrUnaryOperator:
  *	                    * value->BinaryOperator;
  *	                    * unary->ValueOrUnaryOperator;
- *	                    * binary->throw;
+ *	                    * binary->throw MissingValue();
  */
 enum InsertType {
     BinaryOperator,
     ValueOrUnaryOperator
 };
 
+/**
+ * 保存操作符数据。可保存为单操作数和双操作数。
+ * 操作符一般用字符本身作为哈希值标识。保存为整型哈希值。
+ * 具体包括：哈希值，优先级（大优先），执行函数指针，是否为双目。
+ */
 struct Operator {
     Operator(int h, int p, void *f, bool b) {
         hash = h, prior = p, func = f, binary = b;
@@ -32,8 +38,7 @@ struct Operator {
 };
 
 /**
- * 保存操作符对应的操作函数。支持单操作数和双操作数。
- * 操作符一般用字符表示，也可以用整型。以整型保存。
+ * 保存操作符数据
  */
 template<class Value>
 class CalculationSetting {
@@ -45,8 +50,8 @@ public:
     typedef Value(*OpPtr1)(const Value &);
     typedef Value(*OpPtr2)(const Value &, const Value &);
 
-    bool isValid(int hash);
-    Operator get(int hash);
+    bool isValid(int hash) const;
+    Operator get(int hash) const;
     void set(int hash, OpPtr1 func, int prior);
     void set(int hash, OpPtr2 func, int prior);
 
@@ -73,13 +78,13 @@ CalculationSetting<Value> CalculationSetting<Value>::getDefault() {
 }
 
 template<class Value>
-bool CalculationSetting<Value>::isValid(int hash) {
+bool CalculationSetting<Value>::isValid(int hash) const {
     return op.find(hash) != op.end();
 }
 
 template<class Value>
-typename Operator CalculationSetting<Value>::get(int hash) {
-    std::map<int, Operator>::iterator it = op.find(hash);
+typename Operator CalculationSetting<Value>::get(int hash) const {
+    std::map<int, Operator>::const_iterator it = op.find(hash);
     if (it == op.end()) {
         char s[100] = {};
         sprintf_s(s, "operator with hash %d not found.", hash);

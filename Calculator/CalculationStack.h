@@ -3,6 +3,7 @@
 #include <stack>
 #include <stdexcept>
 #include "BasicCalculationStack.h"
+#include "BasicCalculation.h"
 #include "CalculationException.h"
 
 namespace sine {
@@ -13,35 +14,34 @@ namespace calculator {
  * 以栈为基础实现的。
  */
 template<class T>
-class CalculationStack {
+class CalculationStack : public BasicCalculation<T> {
 
 public:
 
     CalculationStack(const CalculationSetting<T> &);
-    ~CalculationStack();
+    virtual ~CalculationStack();
 
-    bool isOpValid(char);
-    void insertValue(const T &);
-    void insertOp(char);
+    virtual void insertValue(const T &);
+    virtual void insertOp(int);
 
-    T calculate();
-
-    void clear();
+    virtual T calculate();
+    virtual void clear();
 
 private:
 
-    std::stack<BasicCalculationStack<T>*> stack;
+    typedef BasicCalculationStack<T> Basic;
+    std::stack<BasicCalculation<T>*> stack;
 
-    CalculationSetting<T> _setting;
+    const CalculationSetting<T> &_setting;
 
 };
 
 template<class T>
 CalculationStack<T>::CalculationStack(
     const CalculationSetting<T> &setting)
-    : _setting(setting) {
+    : BasicCalculation<T>(setting), _setting(getSetting()) {
     // keep the size >= 1
-    stack.push(new BasicCalculationStack<T>(_setting));
+    stack.push(new Basic(_setting));
 }
 
 template<class T>
@@ -50,33 +50,28 @@ CalculationStack<T>::~CalculationStack() {
 }
 
 template<class T>
-bool CalculationStack<T>::isOpValid(char op) {
-    return _setting.isValid(op);
-}
-
-template<class T>
 void CalculationStack<T>::insertValue(const T &v) {
     stack.top()->insertValue(v);
 }
 
 template<class T>
-void CalculationStack<T>::insertOp(char x) {
-    BasicCalculationStack<T> *tem = stack.top();
-    switch (x) {
+void CalculationStack<T>::insertOp(int hash) {
+    BasicCalculation *bc = stack.top();
+    switch (hash) {
     case '(':
-        if (tem->nextInsertType() == BinaryOperator)
+        if (bc->nextInsertType() == BinaryOperator)
             throw MissingOperator("miss operator before '('.");
-        stack.push(new BasicCalculationStack<T>(_setting));
+        stack.push(new Basic(_setting));
         break;
     case ')':
         if (stack.size() <= 1)
             throw BrackerMismatch("more ')' than '('.");
         stack.pop();
-        stack.top()->insertValue(tem->calculate());
-        delete tem;
+        stack.top()->insertValue(bc->calculate());
+        delete bc;
         break;
     default:
-        tem->insertOp(x);
+        bc->insertOp(hash);
     }
 }
 

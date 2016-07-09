@@ -5,7 +5,9 @@
 #include <stdexcept>
 #include <string>
 #include <cstdlib>
+#include <cstdio>
 #include <iostream>
+#include "BasicCalculation.h"
 #include "CalculationException.h"
 #include "CalculationSetting.h"
 
@@ -14,43 +16,35 @@ namespace calculator {
 
 /**
  * 用栈实现的计算。在插入时可能执行一定的计算。
- *
  */
 template<class Value>
-class BasicCalculationStack {
+class BasicCalculationStack : public BasicCalculation<Value> {
 
 public:
 
     BasicCalculationStack(const CalculationSetting<Value> &);
-    ~BasicCalculationStack();
+    virtual ~BasicCalculationStack();
 
-    InsertType nextInsertType();
-    void insertValue(const Value &);
-    void insertOp(int hash);
+    virtual void insertValue(const Value &);
+    virtual void insertOp(int hash);
 
-    Value calculate();
-    void clear();
+    virtual Value calculate();
+    virtual void clear();
 
 private:
 
     void calculateOne();
 
-    InsertType nextType;
-    std::stack<Value *> ValueStack;
-    std::stack<int> OpStack;
-
-    CalculationSetting<Value> _setting;
-
-    typedef typename CalculationSetting<Value>::OpPtr1 Op1;
-    typedef typename CalculationSetting<Value>::OpPtr2 Op2;
+    std::stack<Value *> valueStack;
+    std::stack<int> opStack;
 
 };
 
 template<class Value>
 BasicCalculationStack<Value>::BasicCalculationStack(
     const CalculationSetting<Value> &setting)
-    : _setting(setting) {
-    nextType = ValueOrUnaryOperator;
+    : BasicCalculation<Value>(setting) {
+    
 }
 
 template<class Value>
@@ -59,74 +53,59 @@ BasicCalculationStack<Value>::~BasicCalculationStack() {
 }
 
 template<class Value>
-InsertType BasicCalculationStack<Value>::nextInsertType() {
-    return nextType;
-}
-
-template<class Value>
 void BasicCalculationStack<Value>::insertValue(const Value &v) {
-    if (nextType != ValueOrUnaryOperator)
-        throw MissingOperator("continual values(or unary operators");
-    nextType = BinaryOperator;
-    ValueStack.push(new Value(v));
+    BasicCalculation<Value>::insertValueCheck();
+    valueStack.push(new Value(v));
 }
 
 template<class Value>
 void BasicCalculationStack<Value>::insertOp(int hash) {
-    if (_setting.get(hash).binary) {
-        if (nextType != BinaryOperator)
-            throw MissingValue("continual operators");
-        nextType = ValueOrUnaryOperator;
-    }
-    else {
-        if (nextType != ValueOrUnaryOperator)
-            throw MissingOperator();
-    }
-    while (!OpStack.empty() &&
-           _setting.get(OpStack.top()).prior >= _setting.get(hash).prior)
+    BasicCalculation<Value>::insertOpCheck(hash);
+    while (!opStack.empty() &&
+           getSetting().get(opStack.top()).prior
+           >= getSetting().get(hash).prior)
         calculateOne();
-    OpStack.push(hash);
+    opStack.push(hash);
 }
 
 template<class Value>
 Value BasicCalculationStack<Value>::calculate() {
-    if (ValueStack.empty())
+    BasicCalculation<Value>::calculateCheck();
+    if (valueStack.empty())
         throw EmptyContent("nothing to be calculated.");
-    if (nextType != BinaryOperator)
-        throw MissingValue("at the end");
-    while (ValueStack.size() > 1)
+    while (valueStack.size() > 1)
         calculateOne();
-    return Value(*ValueStack.top());
+    return Value(*valueStack.top());
 }
 
 template<class Value>
 void BasicCalculationStack<Value>::clear() {
-    while (!ValueStack.empty()) {
-        delete ValueStack.top();
-        ValueStack.pop();
+    BasicCalculation<Value>::clearCheck();
+    while (!valueStack.empty()) {
+        delete valueStack.top();
+        valueStack.pop();
     }
-    while (!OpStack.empty())
-        OpStack.pop();
-    nextType = ValueOrUnaryOperator;
+    while (!opStack.empty())
+        opStack.pop();
 }
 
 template<class Value>
 void BasicCalculationStack<Value>::calculateOne() {
-    Value *a = ValueStack.top();
-    ValueStack.pop();
-    int hash = OpStack.top();
-    OpStack.pop();
-    Operator detail = _setting.get(hash);
+    Value *a = valueStack.top();
+    valueStack.pop();
+    int hash = opStack.top();
+    opStack.pop();
+    Operator detail = getSetting().get(hash);
     if (detail.binary) {
-        Value *b = ValueStack.top();
-        ValueStack.pop();
+        Value *b = valueStack.top();
+        valueStack.pop();
         Op2 func = static_cast<Op2>(detail.func);
-        ValueStack.push(new Value((*func)(*b, *a)));
+        valueStack.push(new Value((*func)(*b, *a)));
         delete b;
     }
     else {
         Op1 func = static_cast<Op1>(detail.func);
-        ValueStack.push(new Value((*func)(*a)));
+        valueStack.push(new Value((*func)(*a)));
     }
     delete a;
 }
