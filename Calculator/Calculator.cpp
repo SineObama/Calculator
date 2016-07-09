@@ -12,7 +12,7 @@
 using namespace std;
 using namespace sine::calculator;
 
-typedef double Type;
+typedef int Type;
 
 int main() {
 //     cout << Sqrt1(100000000000000000.0, 5, 10.0);
@@ -27,13 +27,13 @@ int main() {
             if ((c >= '0' && c <= '9') || c == '.') {
                 Type i;
                 cin >> i;
-                t.insert(i);
+                t.insertValue(i);
             }
             else {
                 cin >> c;
                 if (c == '=')
                     break;
-                t.insert(c);
+                t.insertOp(c);
             }
             while (cin.peek() == ' ' || cin.peek() == '\n')
                 cin.ignore();

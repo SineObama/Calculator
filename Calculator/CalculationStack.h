@@ -9,7 +9,7 @@ namespace sine {
 namespace calculator {
 
 /**
- * 接受带括号([{的运算。
+ * 接受带小括号()的运算。
  * 以栈为基础实现的。
  */
 template<class T>
@@ -20,8 +20,9 @@ public:
     CalculationStack(const CalculationSetting<T> &);
     ~CalculationStack();
 
-    void insert(const T &);
-    void insert(char);
+	bool isOpValid(char);
+    void insertValue(const T &);
+    void insertOp(char);
 
     T calculate();
 
@@ -49,13 +50,18 @@ CalculationStack<T>::~CalculationStack() {
 }
 
 template<class T>
-void CalculationStack<T>::insert(const T &x) {
-    stack.top()->insertValue(x);
+bool CalculationStack<T>::isOpValid(char op) {
+	return _setting.isValid(op);
+}
+
+template<class T>
+void CalculationStack<T>::insertValue(const T &v) {
+    stack.top()->insertValue(v);
     return;
 }
 
 template<class T>
-void CalculationStack<T>::insert(char x) {
+void CalculationStack<T>::insertOp(char x) {
     BasicCalculationStack<T> *tem = stack.top();
     switch (x) {
     case '(':
