@@ -3,6 +3,7 @@
 #include <stack>
 #include <stdexcept>
 #include "BasicCalculationStack.h"
+#include "BasicCalculationTree.h"
 #include "BasicCalculation.h"
 #include "CalculationException.h"
 
@@ -29,7 +30,7 @@ public:
 
 private:
 
-    typedef BasicCalculationStack<T> Basic;
+    typedef BasicCalculationTree<T> Basic;
     std::stack<BasicCalculation<T>*> stack;
 
     const CalculationSetting<T> &_setting;

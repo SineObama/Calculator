@@ -15,7 +15,7 @@ namespace sine {
 namespace calculator {
 
 /**
- * 用栈实现的计算。在插入时可能执行一定的计算。
+ * 用栈实现的计算。在插入时可能执行一定的计算。不接受括号。
  */
 template<class Value>
 class BasicCalculationStack : public BasicCalculation<Value> {
@@ -99,12 +99,12 @@ void BasicCalculationStack<Value>::calculateOne() {
     if (detail.binary) {
         Value *b = valueStack.top();
         valueStack.pop();
-        Op2 func = static_cast<Op2>(detail.func);
+        OpPtr2 func = static_cast<OpPtr2>(detail.func);
         valueStack.push(new Value((*func)(*b, *a)));
         delete b;
     }
     else {
-        Op1 func = static_cast<Op1>(detail.func);
+        OpPtr1 func = static_cast<OpPtr1>(detail.func);
         valueStack.push(new Value((*func)(*a)));
     }
     delete a;

@@ -37,8 +37,8 @@ protected:
     void calculateCheck();
     void clearCheck();
 
-    typedef typename CalculationSetting<Value>::OpPtr1 Op1;
-    typedef typename CalculationSetting<Value>::OpPtr2 Op2;
+    typedef typename CalculationSetting<Value>::OpPtr1 OpPtr1;
+    typedef typename CalculationSetting<Value>::OpPtr2 OpPtr2;
 
 private:
 
