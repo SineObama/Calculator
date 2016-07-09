@@ -6,6 +6,22 @@
 namespace sine {
 namespace calculator {
 
+/**
+ * state transition:
+ * BinaryOperator:
+ *	                    * value->throw;
+ *	                    * unary->ValueOrUnaryOperator;
+ *	                    * binary->ValueOrUnaryOperator;
+ * ValueOrUnaryOperator:
+ *	                    * value->BinaryOperator;
+ *	                    * unary->ValueOrUnaryOperator;
+ *	                    * binary->throw;
+ */
+enum InsertType {
+    BinaryOperator,
+    ValueOrUnaryOperator
+};
+
 struct Operator {
     Operator(int h, int p, void *f, bool b) {
         hash = h, prior = p, func = f, binary = b;
@@ -29,8 +45,8 @@ public:
     typedef Value(*OpPtr1)(const Value &);
     typedef Value(*OpPtr2)(const Value &, const Value &);
 
-	bool isValid(int hash);
-	Operator get(int hash);
+    bool isValid(int hash);
+    Operator get(int hash);
     void set(int hash, OpPtr1 func, int prior);
     void set(int hash, OpPtr2 func, int prior);
 
@@ -58,7 +74,7 @@ CalculationSetting<Value> CalculationSetting<Value>::getDefault() {
 
 template<class Value>
 bool CalculationSetting<Value>::isValid(int hash) {
-	return op.find(hash) != op.end();
+    return op.find(hash) != op.end();
 }
 
 template<class Value>

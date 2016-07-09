@@ -14,8 +14,17 @@ using namespace sine::calculator;
 
 typedef int Type;
 
+int &test(int *a) {
+    return *a;
+}
+
 int main() {
 //     cout << Sqrt1(100000000000000000.0, 5, 10.0);
+
+//     int a = 2;
+//     int &b = test(&a);
+//     b = 1;
+//     cout << a;
 //     getchar();
 //     getchar();
 //     return 0;

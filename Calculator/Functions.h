@@ -7,22 +7,22 @@ namespace calculator {
 
 template<class T>
 T plus(const T &a, const T &b) {
-	return a + b;
+    return a + b;
 }
 
 template<class T>
 T subtract(const T &a, const T &b) {
-	return a - b;
+    return a - b;
 }
 
 template<class T>
 T multiply(const T &a, const T &b) {
-	return a * b;
+    return a * b;
 }
 
 template<class T>
 T divide(const T &a, const T &b) {
-	return a / b;
+    return a / b;
 }
 
 template<class T>

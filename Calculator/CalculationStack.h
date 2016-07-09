@@ -20,7 +20,7 @@ public:
     CalculationStack(const CalculationSetting<T> &);
     ~CalculationStack();
 
-	bool isOpValid(char);
+    bool isOpValid(char);
     void insertValue(const T &);
     void insertOp(char);
 
@@ -51,13 +51,12 @@ CalculationStack<T>::~CalculationStack() {
 
 template<class T>
 bool CalculationStack<T>::isOpValid(char op) {
-	return _setting.isValid(op);
+    return _setting.isValid(op);
 }
 
 template<class T>
 void CalculationStack<T>::insertValue(const T &v) {
     stack.top()->insertValue(v);
-    return;
 }
 
 template<class T>
@@ -65,8 +64,7 @@ void CalculationStack<T>::insertOp(char x) {
     BasicCalculationStack<T> *tem = stack.top();
     switch (x) {
     case '(':
-        if (tem->nextInsertType()
-            == BasicCalculationStack<T>::BinaryOperator)
+        if (tem->nextInsertType() == BinaryOperator)
             throw MissingOperator("miss operator before '('.");
         stack.push(new BasicCalculationStack<T>(_setting));
         break;

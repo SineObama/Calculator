@@ -149,6 +149,7 @@
     <ClInclude Include="CalculationSetting.h" />
     <ClInclude Include="BasicCalculationStack.h" />
     <ClInclude Include="CalculationStack.h" />
+    <ClInclude Include="CalculationTree.h" />
     <ClInclude Include="Functions.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />

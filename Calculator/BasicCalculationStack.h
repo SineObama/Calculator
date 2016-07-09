@@ -24,13 +24,9 @@ public:
     BasicCalculationStack(const CalculationSetting<Value> &);
     ~BasicCalculationStack();
 
-    enum InsertType {
-        BinaryOperator,
-        ValueOrUnaryOperator
-    };
     InsertType nextInsertType();
-    void insertOp(int hash);
     void insertValue(const Value &);
+    void insertOp(int hash);
 
     Value calculate();
     void clear();
@@ -63,40 +59,41 @@ BasicCalculationStack<Value>::~BasicCalculationStack() {
 }
 
 template<class Value>
-typename BasicCalculationStack<Value>::InsertType
-BasicCalculationStack<Value>::nextInsertType() {
+InsertType BasicCalculationStack<Value>::nextInsertType() {
     return nextType;
+}
+
+template<class Value>
+void BasicCalculationStack<Value>::insertValue(const Value &v) {
+    if (nextType != ValueOrUnaryOperator)
+        throw MissingOperator("continual values(or unary operators");
+    nextType = BinaryOperator;
+    ValueStack.push(new Value(v));
 }
 
 template<class Value>
 void BasicCalculationStack<Value>::insertOp(int hash) {
     if (_setting.get(hash).binary) {
-        if (nextType == ValueOrUnaryOperator)
-            throw MissingValue("continual binary operators");
+        if (nextType != BinaryOperator)
+            throw MissingValue("continual operators");
         nextType = ValueOrUnaryOperator;
     }
     else {
-        if (nextType == BinaryOperator)
-            throw MissingOperator("continual values(or unary operators");
+        if (nextType != ValueOrUnaryOperator)
+            throw MissingOperator();
     }
-    while (!OpStack.empty() && 
+    while (!OpStack.empty() &&
            _setting.get(OpStack.top()).prior >= _setting.get(hash).prior)
         calculateOne();
     OpStack.push(hash);
 }
 
 template<class Value>
-void BasicCalculationStack<Value>::insertValue(const Value &x) {
-    if (nextType == BinaryOperator)
-        throw MissingOperator("continual values(or unary operators");
-    nextType = BinaryOperator;
-    ValueStack.push(new Value(x));
-}
-
-template<class Value>
 Value BasicCalculationStack<Value>::calculate() {
     if (ValueStack.empty())
         throw EmptyContent("nothing to be calculated.");
+    if (nextType != BinaryOperator)
+        throw MissingValue("at the end");
     while (ValueStack.size() > 1)
         calculateOne();
     return Value(*ValueStack.top());
