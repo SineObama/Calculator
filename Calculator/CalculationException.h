@@ -13,6 +13,13 @@ public:
     }
 };
 
+class DivideByZero : public CalculationError {
+public:
+    DivideByZero(const std::string &s = "")
+        : CalculationError(s) {
+    }
+};
+
 class EmptyContent : public CalculationError {
 public:
     EmptyContent(const std::string &s = "")

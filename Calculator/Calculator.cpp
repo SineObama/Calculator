@@ -12,7 +12,7 @@
 using namespace std;
 using namespace sine::calculator;
 
-typedef int Type;
+typedef double Type;
 
 int &test(int *a) {
     return *a;

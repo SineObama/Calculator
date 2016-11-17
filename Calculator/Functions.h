@@ -22,6 +22,8 @@ T multiply(const T &a, const T &b) {
 
 template<class T>
 T divide(const T &a, const T &b) {
+    if (b == 0)
+        throw DivideByZero("the divisor is zero");
     return a / b;
 }
 
