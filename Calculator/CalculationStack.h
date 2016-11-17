@@ -30,7 +30,7 @@ public:
 
 private:
 
-    typedef BasicCalculationTree<T> Basic;
+    typedef BasicCalculationStack<T> Basic;
     std::stack<BasicCalculation<T>*> stack;
 
     const CalculationSetting<T> &_setting;

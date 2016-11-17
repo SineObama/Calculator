@@ -96,7 +96,7 @@ void BasicCalculation<Value>::insertOpCheck(int hash) {
 template<class Value>
 void BasicCalculation<Value>::calculateCheck() {
     if (_nextType != BinaryOperator)
-        throw MissingValue("at the end");
+        throw MissingValue("missing value at the end");
 }
 
 template<class Value>

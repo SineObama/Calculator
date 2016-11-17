@@ -135,15 +135,18 @@ typename BasicCalculationTree<T>::Node *
 BasicCalculationTree<T>::Node::insert(Node *node) {
     if (LC == NULL)
         throw;
-    node->F = this;
-    if (RC == NULL) {
-        node->LC = LC;
-        LC = node;
-    }
-    else {
-        node->LC = RC;
-        RC = node;
-    }
+    F->RC = node;
+    F = node;
+    node->LC = this;
+    //node->F = this;
+    //if (RC == NULL) {
+    //    node->LC = LC;
+    //    LC = node;
+    //}
+    //else {
+    //    node->LC = RC;
+    //    RC = node;
+    //}
     return node;
 }
 

@@ -31,25 +31,35 @@ int main() {
     CalculationStack<Type> t(CalculationSetting<Type>::getDefault());
 
     while (1) {
-        while (1) {
-            char c = cin.peek();
-            if ((c >= '0' && c <= '9') || c == '.') {
-                Type i;
-                cin >> i;
-                t.insertValue(i);
+        try {
+            while (1) {
+                char c = cin.peek();
+                if ((c >= '0' && c <= '9') || c == '.') {
+                    Type i;
+                    cin >> i;
+                    t.insertValue(i);
+                }
+                else {
+                    cin >> c;
+                    if (c == '=')
+                        break;
+                    t.insertOp(c);
+                }
+                while (cin.peek() == ' ' || cin.peek() == '\n')
+                    cin.ignore();
             }
-            else {
-                cin >> c;
-                if (c == '=')
-                    break;
-                t.insertOp(c);
-            }
+            cout << t.calculate() << endl;
             while (cin.peek() == ' ' || cin.peek() == '\n')
                 cin.ignore();
         }
-        cout << t.calculate() << endl;
-        while (cin.peek() == ' ' || cin.peek() == '\n')
+        catch (CalculationError e) {
+            t.clear();
+            cout << e.what() << endl;
+            while (cin.peek() != '\n') {
+                cin.ignore();
+            }
             cin.ignore();
+        }
     }
 
     return 0;
