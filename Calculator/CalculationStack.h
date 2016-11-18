@@ -22,6 +22,8 @@ public:
     CalculationStack(const CalculationSetting<T> &);
     virtual ~CalculationStack();
 
+    InsertType nextInsertType();
+
     virtual void insertValue(const T &);
     virtual void insertOp(int);
 
@@ -48,6 +50,11 @@ CalculationStack<T>::CalculationStack(
 template<class T>
 CalculationStack<T>::~CalculationStack() {
     clear();
+}
+
+template<class Value>
+InsertType CalculationStack<Value>::nextInsertType() {
+    return stack.top()->nextInsertType();
 }
 
 template<class T>

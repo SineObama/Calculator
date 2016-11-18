@@ -32,11 +32,23 @@ int main() {
 
     while (1) {
         try {
+            Type sign = 1;
             while (1) {
+                while (cin.peek() == ' ' || cin.peek() == '\n')
+                    cin.ignore();
                 char c = cin.peek();
+                if (t.nextInsertType() == InsertType::ValueOrUnaryOperator) {
+                    if (c == '-') {
+                        cin.ignore();
+                        sign *= -1;
+                        continue;
+                    }
+                }
                 if ((c >= '0' && c <= '9') || c == '.') {
                     Type i;
                     cin >> i;
+                    i *= sign;
+                    sign = 1;
                     t.insertValue(i);
                 }
                 else {
@@ -45,12 +57,8 @@ int main() {
                         break;
                     t.insertOp(c);
                 }
-                while (cin.peek() == ' ' || cin.peek() == '\n')
-                    cin.ignore();
             }
             cout << t.calculate() << endl;
-            while (cin.peek() == ' ' || cin.peek() == '\n')
-                cin.ignore();
         }
         catch (CalculationError e) {
             t.clear();
